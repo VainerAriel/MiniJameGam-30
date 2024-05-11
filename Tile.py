@@ -1,50 +1,57 @@
+import math
+
 from settings import *
 
 
 class Tile:
-    def __init__(self, x, y, w, h, color, fill=True, collider=False, sprites=None):
-        self.pos = pygame.math.Vector2(x, y)
+    def __init__(self, x, y, w, h, color, fill=True, collider=False, pushable=False, sprites=None, frame_limit=2,
+                 timer_limit=300):
+        self.grid_pos = pygame.math.Vector2(x, y)
+        self.pos = pygame.math.Vector2(x * tile_size, y * tile_size)
         self.size = pygame.math.Vector2(w, h)
+        self.vel = pygame.math.Vector2(0, 0)
         self.rect = pygame.Rect(self.pos.x, self.pos.y, self.size.x, self.size.y)
         self.color = color
         self.fill = fill
         self.collider = collider
+        self.pushable = pushable
         self.sprites = sprites
         self.use_img = bool(sprites)
         self.frame = 0
+        self.frame_limit = frame_limit
         self.timer = 0
+        self.timer_limit = timer_limit
 
-    def show(self, direction=0, moving=0, time=0):
-        if not self.use_img:
-            pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
-        else:
-            # pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
+    def show(self):
+        pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
 
-            if self.frame == 1 and direction in [0, 2] and moving == 0:
-                screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y+3*scale))
-            elif direction == 3:
-                if moving == 1 and self.frame == 0:
-                    screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y+5*scale))
-                else:
-                    screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y+3*scale))
-            elif moving == 1 and direction in [0, 2]:
-                if self.frame == 0:
-                    screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x + (4 if direction == 2 else 0), self.pos.y + 3 * scale))
-                else:
-                    screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 1 * scale))
-            elif moving == 1 and direction == 1:
-                if self.frame == 1:
-                    screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y - 2 * scale))
-                else:
-                    screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 1 * scale))
-                screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 1000 * scale))
+    def update_pos(self):
+        self.rect = pygame.Rect(self.pos.x, self.pos.y, self.size.x, self.size.y)
+        # self.update_grid_pos()
 
-            else:
-                screen.blit(self.sprites[moving][direction][self.frame], self.pos)
-            self.timer += time
-            if self.timer > 300:
-                self.frame = (self.frame + 1) % len(self.sprites[moving][direction])
-                self.timer = 0
+    def update_grid_pos(self):
+        if self.pushable:
+            x, y = self.grid_pos
+            min_dist = 1000
+            new_x, new_y = x, y
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    middle = ((x + j + 0.5) * tile_size, (y + i + 0.5) * tile_size)
+                    tile_middle = (self.pos.x + self.size.x / 2, self.pos.y + self.size.y / 2)
+                    # pygame.draw.line(screen, (0, 0, 255), middle, tile_middle)
+                    distance = math.dist(middle, tile_middle)
+                    if distance < min_dist:
+                        min_dist = distance
+                        new_x, new_y = x + j, y + i
+
+            # pygame.draw.line(screen, (0, 255, 255), ((new_x + 0.5) * tile_size, (new_y + 0.5) * tile_size),
+            #                  (self.pos.x + self.size.x / 2, self.pos.y + self.size.y / 2), 10)
+
+    def update_anim(self, time):
+        self.timer += time
+        if self.timer > self.timer_limit:
+            self.frame = (self.frame + 1) % self.frame_limit
+            self.timer = 0
 
     def collide(self, other):
         return self.collider and other.collider and self.rect.colliderect(other.rect)

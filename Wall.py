@@ -1,5 +1,5 @@
 from Tile import Tile
-from settings import *
+
 
 class Wall(Tile):
     def __init__(self, x, y, w, h, color):
