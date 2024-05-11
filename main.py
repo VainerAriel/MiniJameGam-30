@@ -5,6 +5,7 @@ import pygame
 from Player import Player
 from Tile import Tile
 from Wall import Wall
+from Water import Water
 from Box import Box
 from settings import *
 
@@ -22,9 +23,17 @@ def load_level(level):
                 player = Player(x, y, tile_size/2+2*scale, 3*tile_size/4-3*scale, (200, 50, 50))
             elif tile_type == 1:
                 tiles.append(Wall(x, y, tile_size, tile_size, (150, 25, 150)))
+            elif tile_type == 4:
+                tiles.append(Water(x, y, tile_size, tile_size, (25, 25, 150)))
             elif tile_type == 3:
                 tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
                 tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50)))
+            elif tile_type == 5:
+                tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
+                tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50), group="g1"))
+            elif tile_type == 6:
+                tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
+                tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50), group="g2"))
     return player, tiles
 
 
@@ -40,6 +49,9 @@ def draw_main(player, tiles, direction, moving, frame):
             tile.show()
     for tile in tiles:
         if type(tile) == Wall:
+            tile.show()
+    for tile in tiles:
+        if type(tile) == Water:
             tile.show()
     for tile in tiles:
         if type(tile) == Box:
