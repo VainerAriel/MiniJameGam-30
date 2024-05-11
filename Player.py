@@ -4,20 +4,84 @@ from settings import *
 
 class Player(Tile):
     def __init__(self, x, y, w, h, color):
-        super().__init__(x, y, w, h, color, fill=False, collider=True, sprites=player_img)
-        self.vel = pygame.math.Vector2(0, 0)
+        super().__init__(x, y, w, h, color, fill=False, collider=True, sprites=player_img, frame_limit=2,
+                         timer_limit=300)
         self.control = True
 
-    def move(self, axis, reverse=False, col_scale=1):
-        if self.vel.magnitude() != 0:
-            if axis == "x":
-                self.pos.x += (self.vel.normalize() * 6 * col_scale).x * (-1 if reverse else 1)
-            elif axis == "y":
-                self.pos.y += (self.vel.normalize() * 6 * col_scale).y * (-1 if reverse else 1)
-            self.rect = pygame.Rect(self.pos.x+2*scale, self.pos.y+20*scale, self.size.x, self.size.y)
+    def show(self, direction=0, moving=0):
+        if self.frame == 1 and direction in [0, 2] and moving == 0:
+            screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 3 * scale))
+        elif direction == 3:
+            if moving == 1 and self.frame == 0:
+                screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 5 * scale))
+            else:
+                screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 3 * scale))
+        elif moving == 1 and direction in [0, 2]:
+            if self.frame == 0:
+                screen.blit(self.sprites[moving][direction][self.frame],
+                            (self.pos.x + (4 if direction == 2 else 0), self.pos.y + 3 * scale))
+            else:
+                screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 1 * scale))
+        elif moving == 1 and direction == 1:
+            if self.frame == 1:
+                screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y - 2 * scale))
+            else:
+                screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 1 * scale))
+            screen.blit(self.sprites[moving][direction][self.frame], (self.pos.x, self.pos.y + 1000 * scale))
 
-    def set_dir(self, dirx, diry):
-        if self.control:
-            self.vel.update(dirx, diry)
+        else:
+            screen.blit(self.sprites[moving][direction][self.frame], self.pos)
+        # pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
 
+    def update_pos(self):
+        self.rect = pygame.Rect(self.pos.x + 2 * scale, self.pos.y + 20 * scale, self.size.x, self.size.y)
 
+    def update(self, tiles, level, time=0):
+        if self.vel.magnitude() == 0:
+            self.update_anim(time)
+            self.update_pos()
+            return
+
+        future_rect = pygame.Rect(self.pos.x + 2 * scale + (self.vel.x * 6),
+                                  self.pos.y + 20 * scale + (self.vel.y * 6),
+                                  self.size.x, self.size.y)
+
+        move = [True, True]
+        for tile in tiles:
+            if future_rect.colliderect(tile.rect):
+                if tile.collider:
+                    future_rect_x = pygame.Rect(self.pos.x + 2 * scale + (self.vel.x * 6),
+                                                self.pos.y + 20 * scale,
+                                                self.size.x, self.size.y)
+                    future_rect_y = pygame.Rect(self.pos.x + 2 * scale,
+                                                self.pos.y + 20 * scale + (self.vel.y * 6),
+                                                self.size.x, self.size.y)
+
+                    if future_rect_x.colliderect(tile.rect):
+                        while future_rect_x.colliderect(tile.rect):
+                            future_rect_x.x -= 1 if self.rect.x < tile.rect.x else -1
+                        self.pos.x = future_rect_x.x - 2 * scale
+                        move[0] = False
+                        if tile.pushable:
+                            if not tile.moving:
+                                tile.move(tiles, 1 if self.rect.x < tile.rect.x else -1, 0)
+
+                    if future_rect_y.colliderect(tile.rect):
+                        while future_rect_y.colliderect(tile.rect):
+                            future_rect_y.y -= 1 if self.rect.y < tile.rect.y else -1
+                        self.pos.y = future_rect_y.y - 20 * scale
+                        move[1] = False
+                        if tile.pushable:
+                            if not tile.moving:
+                                tile.move(tiles, 0, 1 if self.rect.y < tile.rect.y else -1)
+        if move[0]:
+            self.pos.x += (self.vel.normalize() * 6).x
+        if move[1]:
+            self.pos.y += (self.vel.normalize() * 6).y
+
+        self.update_anim(time)
+        self.update_pos()
+        # pygame.draw.rect(screen, (50, 50, 200), self.rect, 1 if self.fill else 0)
+
+    def set_dir(self, dir_x, dir_y):
+        self.vel.update(dir_x, dir_y)

@@ -12,19 +12,19 @@ from settings import *
 def load_level(level):
     tiles = []
     player = None
-    for i in range(len(level)):
-        for j in range(len(level[i])):
-            tile_type = level[i][j]
+    for y in range(len(level)):
+        for x in range(len(level[y])):
+            tile_type = level[y][x]
             if tile_type == 0:
-                tiles.append(Tile(j * tile_size, i * tile_size, tile_size, tile_size, (0, 0, 0)))
+                tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
             elif tile_type == 2:
-                tiles.append(Tile(j * tile_size, i * tile_size, tile_size, tile_size, (0, 0, 0)))
-                player = Player(j * tile_size, i * tile_size, tile_size, tile_size, (200, 50, 50))
+                tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
+                player = Player(x, y, tile_size, tile_size, (200, 50, 50))
             elif tile_type == 1:
-                tiles.append(Wall(j * tile_size, i * tile_size, tile_size, tile_size, (150, 25, 150)))
+                tiles.append(Wall(x, y, tile_size, tile_size, (150, 25, 150)))
             elif tile_type == 3:
-                tiles.append(Tile(j * tile_size, i * tile_size, tile_size, tile_size, (0, 0, 0)))
-                tiles.append(Box(j * tile_size, i * tile_size, tile_size, tile_size, (50, 150, 50)))
+                tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
+                tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50)))
     return player, tiles
 
 
@@ -44,12 +44,12 @@ def draw_main(player, tiles, direction, moving, frame):
     for tile in tiles:
         if type(tile) == Box:
             tile.show()
-            if direction == 2 and pygame.Vector2(player.rect.x, player.rect.y).distance_to(tile.pos) < tile_size*2 and player.rect.y + tile_size*0.65 > tile.pos.y and  player.rect.y < tile.pos.y + tile_size:
-                pygame.draw.rect(screen, (200, 200, 0), tile.rect)
-                tile.pushable = True
-            else:
-                tile.pushable = False
-    player.show(direction, moving, clock.get_time())
+            # if direction == 2 and pygame.Vector2(player.rect.x, player.rect.y).distance_to(tile.pos) < tile_size*2 and player.rect.y + tile_size*0.65 > tile.pos.y and  player.rect.y < tile.pos.y + tile_size:
+            #     pygame.draw.rect(screen, (200, 200, 0), tile.rect)
+            #     tile.pushable = True
+            # else:
+            #     tile.pushable = False
+    player.show(direction, moving)
     # pygame.draw.rect(screen, (200, 0, 0), player.rect)
 
 
@@ -99,66 +99,21 @@ def main():
                 moving = 0
             else:
                 player.set_dir(0, player.vel.y)
-
-            for tile in tiles:
-                if type(tile) == Box:
-                    if tile.pushable and keys[pygame.K_SPACE]:
-                        tile.push = not tile.push
         else:
             moving = 0
 
-        player.move("x")
-        for tile in tiles:
-            col_scale = 1
-            colliding = False
-            if player.collide(tile):
-                colliding = True
-            while player.collide(tile):
-                if col_scale == 0:
-                    break
-                player.move("x", True, col_scale)
-                col_scale -= 0.1
-                player.move("x", col_scale=col_scale)
-
-            ############################################################################### FIX HUGE BUG, FIX BOX MOVING
-            if type(tile) == Box and tile.push:
-                print("yay")
-                tile.rect = pygame.Rect(player.pos.x + tile_size+1, tile.pos.y, tile.size.x, tile.size.y)
-            # if type(tile) == Box and colliding:
-            #     # player.control = False
-            #     player.vel.y = 0
-            #     x, y = tile.pos.x//tile_size, tile.pos.y//tile_size
-            #     print(x, y)
-            #     tile.pos = tile.pos.lerp(pygame.Vector2((x+1)*tile_size, y*tile_size), 0.125*(1-tile.pos.distance_to(pygame.Vector2((x+1)*tile_size, y*tile_size))/tile_size/2))
-            #     tile.rect = pygame.Rect(tile.pos.x, tile.pos.y, tile.size.x, tile.size.y)
-            #     if tile.pos.distance_to(pygame.Vector2((x+1)*tile_size, y*tile_size)) < 2.5:
-            #         tile.move(x + (1 if player.vel.x > 0 else -1), y)
-            #         player.control = True
-
-        player.move("y")
-        for tile in tiles:
-            col_scale = 1
-            colliding = False
-            if player.collide(tile):
-                colliding = True
-            while player.collide(tile):
-                if col_scale == 0:
-                    break
-                player.move("y", True, col_scale)
-                col_scale -= 0.1
-                player.move("y", col_scale=col_scale)
-
-            if type(tile) == Box and colliding:
-                x, y = tile.pos.x // tile_size, tile.pos.y // tile_size
-                tile.move(x, y + (1 if player.vel.y > 0 else -1))
-
-        for tile in tiles:
-            if type(tile) == Box:
-                pass
-                # print(tile.pos.x // (16*scale), tile.pos.y // (16*scale))
-
         if run:
             draw_main(player, tiles, direction, moving, water_frame)
+
+        for tile in tiles:
+            if type(tile) != Box:
+                tile.update_pos()
+            else:
+                tile.update_pos(tiles)
+            tile.update_anim(clock.get_time())
+
+        player.update(tiles, level1, clock.get_time())
+
 
         if water_timer > 900:
             water_timer = 0
