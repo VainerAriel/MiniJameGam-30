@@ -19,7 +19,7 @@ def load_level(level):
                 tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
             elif tile_type == 2:
                 tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
-                player = Player(x, y, tile_size, tile_size, (200, 50, 50))
+                player = Player(x, y, tile_size/2+2*scale, 3*tile_size/4-3*scale, (200, 50, 50))
             elif tile_type == 1:
                 tiles.append(Wall(x, y, tile_size, tile_size, (150, 25, 150)))
             elif tile_type == 3:
