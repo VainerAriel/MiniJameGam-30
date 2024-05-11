@@ -7,7 +7,7 @@ class Player(Tile):
         super().__init__(x, y, w, h, color, fill=False, collider=True, sprites=player_img, frame_limit=2,
                          timer_limit=300)
         self.control = True
-        self.hit_box = (5*scale, 26*scale)
+
 
     def show(self, direction=0, moving=0):
         if self.frame == 1 and direction in [0, 2] and moving == 0:
