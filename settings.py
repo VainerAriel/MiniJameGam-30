@@ -71,22 +71,43 @@ for i in range(2):
 balloon = loadify(f"balloon.png")
 balloon = pygame.transform.scale(balloon, (balloon.get_width() * scale, balloon.get_height() * scale))
 
+boulder = []
+for i in range(2):
+    img = loadify(f"boulder{i}.png")
+    img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
+    boulder.append(img)
+
+signal = []
+for i in range(4):
+    img = loadify(f"signal/signal{i}.png")
+    img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
+    signal.append(img)
+
 ground = loadify(f"ground.png")
 ground = pygame.transform.scale(ground, (ground.get_width() * scale, ground.get_height() * scale))
+
+level0_img = loadify(f"level_0.png")
+level0_img = pygame.transform.scale(level0_img, (level0_img.get_width() * scale, level0_img.get_height() * scale))
 
 state = ["walk", "idle"]
 directions = ["left", "back", "right", "front"]
 
 player_img = []
-for i in range(2):
+for i in range(3):
     player_img.append([])
-    for j in range(4):
-        player_img[i].append([])
-        for k in range(2):
-            img = loadify(f"character-sprites/{directions[j]}-{state[i]}-{k + 1}.png")
+    if i != 2:
+        for j in range(4):
+            player_img[i].append([])
+            for k in range(2):
+                img = loadify(f"character-sprites/{directions[j]}-{state[i]}-{k + 1}.png")
+                img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
+                player_img[i][j].append(img)
+    else:
+        for j in range(3):
+            img = loadify(f"character-sprites/transmit-{j + 1}.png")
             img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
-            player_img[i][j].append(img)
-
+            player_img[i].append(img)
+print(player_img)
 level0 = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
@@ -108,17 +129,17 @@ level0 = [
 level1 = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1],
-    [1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1],
-    [1, 1, 0, 1, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 1, 1],
-    [1, 1, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 6, 6, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 6, 6, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 2, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 7, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]

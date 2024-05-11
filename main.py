@@ -7,6 +7,7 @@ from Tile import Tile
 from Wall import Wall
 from Water import Water
 from Box import Box
+from Signal import Signal
 from settings import *
 
 
@@ -30,37 +31,41 @@ def load_level(level):
                 tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50)))
             elif tile_type == 5:
                 tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
-                tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50), group="g1"))
+                tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50), group="g1", sprite=boulder))
             elif tile_type == 6:
                 tiles.append(Tile(x, y, tile_size, tile_size, (0, 0, 0)))
-                tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50), group="g2"))
+                tiles.append(Box(x, y, tile_size, tile_size, (50, 150, 50), group="g2", sprite=boulder))
+            elif tile_type == 7:
+                tiles.append(Signal(x, y, tile_size, tile_size, (50, 0, 50), signal))
     return player, tiles
 
 
 def draw_main(player, tiles, direction, moving, frame):
-    # screen.blit(starting_img, (0, 0))
+    screen.blit(level0_img, (0, 0))
 
     # screen.blit(ground, (0, 0))
     # screen.blit(water[frame], (0, 0))
     # screen.blit(balloon, (0, 0))
-    screen.fill((255, 255, 255))
-    for tile in tiles:
-        if type(tile) == Tile:
-            tile.show()
-    for tile in tiles:
-        if type(tile) == Wall:
-            tile.show()
-    for tile in tiles:
-        if type(tile) == Water:
-            tile.show()
+    # screen.fill((255, 255, 255))
+    # for tile in tiles:
+    #     if type(tile) == Tile:
+    #         tile.show()
+    # for tile in tiles:
+    #     if type(tile) == Wall:
+    #         tile.show()
+    # for tile in tiles:
+    #     if type(tile) == Water:
+    #         tile.show()
+
     for tile in tiles:
         if type(tile) == Box:
-            tile.show()
-            # if direction == 2 and pygame.Vector2(player.rect.x, player.rect.y).distance_to(tile.pos) < tile_size*2 and player.rect.y + tile_size*0.65 > tile.pos.y and  player.rect.y < tile.pos.y + tile_size:
-            #     pygame.draw.rect(screen, (200, 200, 0), tile.rect)
-            #     tile.pushable = True
-            # else:
-            #     tile.pushable = False
+            if tile.leader:
+                tile.show()
+    for tile in tiles:
+        if type(tile) == Signal:
+            tile.show(clock.get_time())
+            # pygame.draw.circle(screen, (150, 0, 150), (tile.rect.x+tile.rect.width/2, tile.rect.y+3*tile.rect.height/2), 2*tile_size/5)
+            print(tile.recharge, tile.signal_timer)
     player.show(direction, moving)
     # pygame.draw.rect(screen, (200, 0, 0), player.rect)
 
@@ -72,6 +77,15 @@ def main():
     water_timer = 0
     water_frame = 0
 
+    boxes = []
+    for tile in tiles:
+        if tile.group == "g1":
+            boxes.append(tile)
+    minim = 100, 100, None
+    for box in boxes:
+        if box.grid_pos.x < minim[0] or box.grid_pos.y < minim[1]:
+            minim = box.grid_pos.x, box.grid_pos.y, box
+    minim[2].leader = True
     fade(screen, "in", draw_main, player, tiles, direction, moving, water_frame)
 
     run = True
