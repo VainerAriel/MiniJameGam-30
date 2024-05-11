@@ -7,6 +7,7 @@ class Player(Tile):
         super().__init__(x, y, w, h, color, fill=False, collider=True, sprites=player_img, frame_limit=2,
                          timer_limit=300)
         self.control = True
+        self.hit_box = (5*scale, 26*scale)
 
     def show(self, direction=0, moving=0):
         if self.frame == 1 and direction in [0, 2] and moving == 0:
@@ -34,7 +35,7 @@ class Player(Tile):
         # pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
 
     def update_pos(self):
-        self.rect = pygame.Rect(self.pos.x + 2 * scale, self.pos.y + 20 * scale, self.size.x, self.size.y)
+        self.rect = pygame.Rect(self.pos.x + self.hit_box[0], self.pos.y + self.hit_box[1], self.size.x, self.size.y)
 
     def update(self, tiles, level, time=0):
         if self.vel.magnitude() == 0:
@@ -42,25 +43,25 @@ class Player(Tile):
             self.update_pos()
             return
 
-        future_rect = pygame.Rect(self.pos.x + 2 * scale + (self.vel.x * 6),
-                                  self.pos.y + 20 * scale + (self.vel.y * 6),
+        future_rect = pygame.Rect(self.pos.x + self.hit_box[0] + (self.vel.x * 6),
+                                  self.pos.y + self.hit_box[1] + (self.vel.y * 6),
                                   self.size.x, self.size.y)
 
         move = [True, True]
         for tile in tiles:
             if future_rect.colliderect(tile.rect):
                 if tile.collider:
-                    future_rect_x = pygame.Rect(self.pos.x + 2 * scale + (self.vel.x * 6),
-                                                self.pos.y + 20 * scale,
+                    future_rect_x = pygame.Rect(self.pos.x + self.hit_box[0] + (self.vel.x * 6),
+                                                self.pos.y + self.hit_box[1],
                                                 self.size.x, self.size.y)
-                    future_rect_y = pygame.Rect(self.pos.x + 2 * scale,
-                                                self.pos.y + 20 * scale + (self.vel.y * 6),
+                    future_rect_y = pygame.Rect(self.pos.x + self.hit_box[0],
+                                                self.pos.y + self.hit_box[1] + (self.vel.y * 6),
                                                 self.size.x, self.size.y)
 
                     if future_rect_x.colliderect(tile.rect):
                         while future_rect_x.colliderect(tile.rect):
                             future_rect_x.x -= 1 if self.rect.x < tile.rect.x else -1
-                        self.pos.x = future_rect_x.x - 2 * scale
+                        self.pos.x = future_rect_x.x - self.hit_box[0]
                         move[0] = False
                         if tile.pushable:
                             if not tile.moving:
@@ -69,7 +70,7 @@ class Player(Tile):
                     if future_rect_y.colliderect(tile.rect):
                         while future_rect_y.colliderect(tile.rect):
                             future_rect_y.y -= 1 if self.rect.y < tile.rect.y else -1
-                        self.pos.y = future_rect_y.y - 20 * scale
+                        self.pos.y = future_rect_y.y - self.hit_box[1]
                         move[1] = False
                         if tile.pushable:
                             if not tile.moving:
