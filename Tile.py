@@ -5,7 +5,7 @@ from settings import *
 
 class Tile:
     def __init__(self, x, y, w, h, color, fill=True, collider=False, pushable=False, sprites=None, frame_limit=2,
-                 timer_limit=300, hit_box=(5 * scale, 26 * scale), group=""):
+                 timer_limit=300, hit_box=(5 * scale, 26 * scale), group="", transmit=False):
         self.grid_pos = pygame.math.Vector2(x, y)
         self.pos = pygame.math.Vector2(x * tile_size, y * tile_size)
         self.size = pygame.math.Vector2(w, h)
@@ -23,6 +23,7 @@ class Tile:
         self.timer_limit = timer_limit
         self.hit_box = hit_box
         self.group = group
+        self.transmit = transmit
 
     def show(self):
         pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
@@ -52,7 +53,7 @@ class Tile:
     def update_anim(self, time):
         self.timer += time
         if self.timer > self.timer_limit:
-            self.frame = (self.frame + 1) % self.frame_limit
+            self.frame = (self.frame + 1) % (self.frame_limit if not self.transmit else 3)
             self.timer = 0
 
     def collide(self, other):
