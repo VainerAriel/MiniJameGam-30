@@ -126,9 +126,9 @@ class Bullet(Tile):
         self.pos = pygame.math.Vector2(x, y)
         self.update_pos()
         if self.rotation % 2 == 0:
-            self.vel.x = -7 if not self.rotation else 7
+            self.vel.x = -7*magic_pixel if not self.rotation else 7*magic_pixel
         else:
-            self.vel.y = -7 if not (self.rotation - 1) else 7
+            self.vel.y = -7*magic_pixel if not (self.rotation - 1) else 7*magic_pixel
 
     def show(self, time=0):
         # pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)

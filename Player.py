@@ -12,7 +12,7 @@ class Player(Tile):
         self.dead = False
         self.score = 0
         self.score_limit = score_limit
-        self.speed = 6/3.5*scale
+        self.speed = 6*magic_pixel
         self.teleport = False
         self.level = None
 
@@ -134,9 +134,9 @@ class Player(Tile):
                     self.frame = 0
 
         if move[0]:
-            self.pos.x += (self.vel.normalize() * 6).x
+            self.pos.x += (self.vel.normalize() * self.speed).x
         if move[1]:
-            self.pos.y += (self.vel.normalize() * 6).y
+            self.pos.y += (self.vel.normalize() * self.speed).y
 
         self.update_anim(time)
         self.update_pos()

@@ -5,6 +5,7 @@ tile_size = scale * 16
 grid_w, grid_h = 20, 15
 WIDTH, HEIGHT = grid_w * tile_size, grid_h * tile_size
 fps = 30
+magic_pixel = scale/3.5
 
 pygame.init()
 
