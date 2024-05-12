@@ -1,18 +1,18 @@
 import math
 
 from Tile import Tile
-from Water import Water
 from settings import *
 import pygame
 
 
 class Box(Tile):
-    def __init__(self, x, y, w, h, color, group="", sprite=boulder[0], tile_type="box"):
+    def __init__(self, x, y, w, h, color, group="", sprite=boulder, tile_type="box"):
         super().__init__(x, y, w, h, color, fill=False, collider=True, pushable=True, hit_box=(0, 0), group=group, sprites=sprite, tile_type=tile_type)
         self.moving = False
         self.leader = False
+        self.big = True
 
-    def show(self):
+    def show(self, time=0):
         screen.blit(self.sprites[1 if (not self.collider and not self.moving) else 0], (self.rect.x, self.rect.y))
 
     def update_pos(self, tiles=None):
@@ -32,12 +32,10 @@ class Box(Tile):
         # self.update_grid_pos()
 
     def move(self, tiles, x, y):
-        print(x, y)
         group_tiles = [self]
         for tile in tiles:
-            if tile.group == self.group and tile != self:
+            if tile.group != "" and tile.group == self.group and tile != self:
                 group_tiles.append(tile)
-        print(group_tiles)
         collided = False
         count_wet = 0
         water_tiles = []
@@ -59,10 +57,8 @@ class Box(Tile):
                             # tile.collider = False
                         else:
                             collided = True
-                        print(tile.grid_pos)
 
             if count_wet == len(group_tiles):
-                print("aaa")
                 for i in range(len(group_tiles)):
                     group_tiles[i].collider = False
                     water_tiles[i].collider = False
