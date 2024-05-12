@@ -13,15 +13,10 @@ pygame.display.set_caption("YAY TIME")
 clock = pygame.time.Clock()
 
 
-# for i in range(15):
-#     print("[", end="")
-#     for j in range(20):
-#         print("0, " if j != 19 else "0", end="")
-#     print("]," if i != 14 else "]")
-
-
-def loadify(filename):
-    return pygame.image.load(filename).convert_alpha()
+def loadify(filename, scaling):
+    img = pygame.image.load(filename).convert_alpha()
+    img = pygame.transform.scale(img, (img.get_width() * scaling, img.get_height() * scaling))
+    return img
 
 
 def image(surface, img, pos, mode="corner"):
@@ -58,36 +53,21 @@ def fade(surface, mode, draw_func, *draw_par):
         pygame.time.delay(2)
 
 
-starting_img = loadify("starting_level.png")
-starting_img = pygame.transform.scale(starting_img,
-                                      (starting_img.get_width() * scale, starting_img.get_height() * scale))
+starting_img = loadify("Assets/Art/backgrounds/starting_level.png", scale)
 
-water = []
-for i in range(2):
-    img = loadify(f"water{i + 1}.png")
-    img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
-    water.append(img)
+water = [loadify(f"Assets/Art/backgrounds/water{i + 1}.png", scale) for i in range(2)]
 
-balloon = loadify(f"balloon.png")
-balloon = pygame.transform.scale(balloon, (balloon.get_width() * scale, balloon.get_height() * scale))
+balloon = loadify(f"Assets/Art/balloon.png", scale)
 
-boulder = []
-for i in range(2):
-    img = loadify(f"boulder{i}.png")
-    img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
-    boulder.append(img)
+boulder = [[loadify(f"Assets/Art/boulder/boulder{i}.png", scale * (0.5 if j == 1 else 1)) for i in range(2)] for j in range(2)]
 
-signal = []
-for i in range(4):
-    img = loadify(f"signal/signal{i}.png")
-    img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
-    signal.append(img)
 
-ground = loadify(f"ground.png")
-ground = pygame.transform.scale(ground, (ground.get_width() * scale, ground.get_height() * scale))
+signal = [loadify(f"Assets/Art/signal/signal{i}.png", scale) for i in range(4)]
 
-level0_img = loadify(f"level_0.png")
-level0_img = pygame.transform.scale(level0_img, (level0_img.get_width() * scale, level0_img.get_height() * scale))
+
+ground = loadify(f"Assets/Art/backgrounds/ground.png", scale)
+
+level0_img = loadify(f"Assets/Art/backgrounds/level_0.png", scale)
 
 state = ["walk", "idle"]
 directions = ["left", "back", "right", "front"]
@@ -99,16 +79,12 @@ for i in range(3):
         for j in range(4):
             player_img[i].append([])
             for k in range(2):
-                img = loadify(f"character-sprites/{directions[j]}-{state[i]}-{k + 1}.png")
-                img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
-                player_img[i][j].append(img)
+                player_img[i][j].append(loadify(f"Assets/Art/character-sprites/{directions[j]}-{state[i]}-{k + 1}.png", scale))
     else:
         for j in range(3):
-            img = loadify(f"character-sprites/transmit-{j + 1}.png")
-            img = pygame.transform.scale(img, (img.get_width() * scale, img.get_height() * scale))
-            player_img[i].append(img)
-print(player_img)
-level0 = [
+            player_img[i].append(loadify(f"Assets/Art/character-sprites/transmit-{j + 1}.png", scale))
+
+level_select0 = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -126,14 +102,14 @@ level0 = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
 ]
 
-level1 = [
+level0 = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 2, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 7, 0, 1, 1],
     [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
-    [1, 1, 2, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 7, 0, 1, 1],
     [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
-    [1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 3, 5, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 1],
     [1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 1],
     [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
     [1, 1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1],
@@ -143,3 +119,26 @@ level1 = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
+
+test = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 1],
+    [1, 1, 0, 1, 1, 0, 3, 5, 0, 0, 3, 6, 0, 4, 4, 0, 7, 0, 1, 1],
+    [1, 1, 0, 0, 1, 0, 5, 5, 0, 0, 6, 6, 0, 4, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]
+
+level_select = [level_select0]
+levels = [test, level0]
+level_backgrounds = {"select 0": [ground, water, balloon], "play 1": [level0_img]}
+box_groups = {5: "g1", 6: "g2"}
