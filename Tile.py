@@ -5,7 +5,7 @@ from settings import *
 
 class Tile:
     def __init__(self, x, y, w, h, color, fill=True, collider=False, pushable=False, sprites=None, frame_limit=2,
-                 timer_limit=300, hit_box=(5 * scale, 26 * scale), group="", transmit=False, tile_type="floor"):
+                 timer_limit=300, hit_box=(0, 0), group="", transmit=False, tile_type="floor", rotation=4, value=None):
         self.grid_pos = pygame.math.Vector2(x, y)
         self.pos = pygame.math.Vector2(x * tile_size, y * tile_size)
         self.size = pygame.math.Vector2(w, h)
@@ -25,16 +25,25 @@ class Tile:
         self.group = group
         self.transmit = transmit
         self.signal_timer = 0
+        self.rotation = rotation
+        self.open = False
+        self.active = True
+        self.anim = True
+        self.loop = True
+        self.value = value
+        if tile_type == "door":
+            self.anim = False
+            self.loop = False
+            self.hit_box = (tile_size, 0)
 
         self.tile_type = tile_type
 
     def show(self, time=0):
-        if self.tile_type != "signal":
+        if self.tile_type not in ["signal", "bullet", "door"]:
             pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
         else:
-            print(self.sprites, "aaa")
+            # pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
             screen.blit(self.sprites[self.frame], (self.rect.x, self.rect.y))
-        self.update_anim(time)
 
     def update_pos(self):
         self.rect = pygame.Rect(self.pos.x, self.pos.y, self.size.x, self.size.y)
@@ -59,7 +68,12 @@ class Tile:
         #                  (self.pos.x + self.size.x / 2, self.pos.y + self.size.y / 2), 10)
 
     def update_anim(self, time):
-        self.timer += time
-        if self.timer > self.timer_limit:
-            self.frame = (self.frame + 1) % (self.frame_limit if not self.transmit else 3)
-            self.timer = 0
+        if self.anim:
+            self.timer += time
+            if self.timer > self.timer_limit:
+                if self.loop:
+                    self.frame = (self.frame + 1) % (self.frame_limit if not self.transmit else 3)
+                else:
+                    if self.frame < self.frame_limit:
+                        self.frame += 1
+                self.timer = 0
