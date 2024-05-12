@@ -7,8 +7,8 @@ import pygame
 
 
 class Box(Tile):
-    def __init__(self, x, y, w, h, color, group="", sprite=None):
-        super().__init__(x, y, w, h, color, fill=False, collider=True, pushable=True, hit_box=(0, 0), group=group, sprites=sprite)
+    def __init__(self, x, y, w, h, color, group="", sprite=boulder[0], tile_type="box"):
+        super().__init__(x, y, w, h, color, fill=False, collider=True, pushable=True, hit_box=(0, 0), group=group, sprites=sprite, tile_type=tile_type)
         self.moving = False
         self.leader = False
 
@@ -35,7 +35,7 @@ class Box(Tile):
         print(x, y)
         group_tiles = [self]
         for tile in tiles:
-            if tile.group != "" and tile.group == self.group and tile != self:
+            if tile.group == self.group and tile != self:
                 group_tiles.append(tile)
         print(group_tiles)
         collided = False
@@ -49,10 +49,10 @@ class Box(Tile):
                         if tile.grid_pos.x == g_t.grid_pos.x + x and tile.grid_pos.y == g_t.grid_pos.y + y:
                             any_col = True
                     if any_col:
-                        if type(tile) == Box:
+                        if tile.tile_type == "box":
                             if not tile.move(tiles, x, y):
                                 collided = True
-                        elif type(tile) == Water:
+                        elif tile.tile_type == "water":
                             count_wet += 1
                             water_tiles.append(tile)
                             # self.collider = False
