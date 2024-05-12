@@ -18,14 +18,14 @@ class Box(Tile):
     def update_pos(self, tiles=None):
         if self.moving:
             self.pos = self.pos.lerp(self.grid_pos * tile_size, 0.075)
-            if math.dist(self.pos, self.grid_pos * tile_size) < 3:
+            if math.dist(self.pos, self.grid_pos * tile_size) < 3*magic_pixel:
                 self.pos = self.grid_pos * tile_size
                 self.moving = False
-            elif math.dist(self.pos, self.grid_pos * tile_size) < 5:
+            elif math.dist(self.pos, self.grid_pos * tile_size) < 5*magic_pixel:
                 self.pos = self.pos.lerp(self.grid_pos * tile_size, 0.4)
-            elif math.dist(self.pos, self.grid_pos * tile_size) < 15:
+            elif math.dist(self.pos, self.grid_pos * tile_size) < 15*magic_pixel:
                 self.pos = self.pos.lerp(self.grid_pos * tile_size, 0.2)
-            elif math.dist(self.pos, self.grid_pos * tile_size) < 25:
+            elif math.dist(self.pos, self.grid_pos * tile_size) < 25*magic_pixel:
                 self.pos = self.pos.lerp(self.grid_pos * tile_size, 0.1)
 
         self.rect = pygame.Rect(self.pos.x, self.pos.y, self.size.x, self.size.y)

@@ -92,6 +92,9 @@ def draw_main(tiles, boxes, player, frame, current_play, shapes=False):
         background_images = level_backgrounds[current_play]
         bg_img = background_images[0]
         screen.blit(bg_img, (0, 0))
+        for box in boxes:
+            if box.leader and not box.collider:
+                box.show()
         for tile in tiles:
             if tile.tile_type == "signal":
                 tile.show(clock.get_time())
@@ -103,6 +106,9 @@ def draw_main(tiles, boxes, player, frame, current_play, shapes=False):
             if tile.tile_type == "laser":
                 tile.setup_laser(tiles + boxes)
                 tile.show(player=player)
+        for box in boxes:
+            if box.leader and box.collider:
+                box.show()
             # if tile.tile_type == "door":
                 # pygame.draw.rect(screen, (255, 0, 0), (tile.rect))
         # pygame.draw.rect(screen, (255, 150, 20), (player.rect))
@@ -123,9 +129,7 @@ def draw_main(tiles, boxes, player, frame, current_play, shapes=False):
             if tile.tile_type in ["wall", "water"]:
                 tile.show()
 
-    for box in boxes:
-        if box.leader:
-            box.show()
+
     player.show()
 
 
