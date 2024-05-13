@@ -200,6 +200,8 @@ def main(current_mode, current_level, current_level_select, death=False, spawn=N
                                                        level_score[current_level] if current_mode == "play" else 0,
                                                        spawn=spawn)
 
+
+
     water_timer, water_frame = 0, 0
     pause = False
 
@@ -253,15 +255,16 @@ def main(current_mode, current_level, current_level_select, death=False, spawn=N
             if event.type == pygame.MOUSEBUTTONDOWN:
                 click = True
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    play_sound(2)
-                    dying("out", draw_main, tiles, boxes, player, water_frame, current_play, current_mode)
-                    return 0, True
-                if event.key == pygame.K_ESCAPE and current_mode == "play":
-                    pause = not pause
-                    # play_sound(2)
-                    # dying("out", draw_main, tiles, boxes, player, water_frame, current_play, current_mode)
-                    # return 0, True
+                if current_mode == "play":
+                    if event.key == pygame.K_r:
+                        play_sound(2)
+                        dying("out", draw_main, tiles, boxes, player, water_frame, current_play, current_mode)
+                        return 0, True, current_level, False
+                    if event.key == pygame.K_ESCAPE and current_mode == "play":
+                        pause = not pause
+                        # play_sound(2)
+                        # dying("out", draw_main, tiles, boxes, player, water_frame, current_play, current_mode)
+                        # return 0, True
 
         if not pause:
             player_movement(player, keys)
@@ -283,7 +286,7 @@ def main(current_mode, current_level, current_level_select, death=False, spawn=N
 
                         if future_rect.colliderect(door_hitbox):
                             fade(screen, "out", draw_main, tiles, boxes, player, water_frame, current_play, current_mode)
-                            return 0, False, current_level, True
+                            return 0, False, current_level, True  #WIN
 
                 if player.dead:
                     play_sound(2)
@@ -463,8 +466,10 @@ def main_menu():
                         won.append(game[2])
                         score += 1
                 else:
-                    won.append(current_level)
-                    score += 1
+                    if current_level not in won:
+                        won.append(current_level)
+                        score += 1
+                        print("WATF WHY")
                 current_mode = "select"
                 loadify_sound(f"Assets/Audio/title_theme.mp3", "music")
                 pygame.mixer.music.play(-1)
