@@ -458,8 +458,12 @@ def main_menu():
                 while dead:
                     dead = main(current_mode, current_level, current_level_select, death=True, score=score)[1]
                 print(game)
-                if game[3] and game[2] not in won:
-                    won.append(game[2])
+                if len(game) >=4:
+                    if game[3] and game[2] not in won:
+                        won.append(game[2])
+                        score += 1
+                else:
+                    won.append(current_level)
                     score += 1
                 current_mode = "select"
                 loadify_sound(f"Assets/Audio/title_theme.mp3", "music")
