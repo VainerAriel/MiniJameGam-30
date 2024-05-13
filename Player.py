@@ -1,3 +1,5 @@
+import pygame.mixer
+
 from Tile import Tile
 from settings import *
 
@@ -5,7 +7,7 @@ from settings import *
 class Player(Tile):
     def __init__(self, x, y, w, h, color, score_limit=1):
         super().__init__(x, y, w, h, color, fill=False, collider=True, sprites=player_img, frame_limit=2,
-                         timer_limit=300, hit_box=(5 * scale, 26 * scale))
+                         timer_limit=300, hit_box=(5 * scale, 26 * scale), tile_type="player")
         self.control = True
         self.direction = 3
         self.moving = 1
@@ -47,7 +49,6 @@ class Player(Tile):
                 screen.blit(self.sprites[self.moving][self.direction][self.frame], self.pos)
         else:
             screen.blit(self.sprites[2][self.frame], (self.pos.x, self.pos.y))
-        # pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
 
     def update_pos(self):
         self.rect = pygame.Rect(self.pos.x + self.hit_box[0], self.pos.y + self.hit_box[1], self.size.x, self.size.y)
@@ -58,9 +59,16 @@ class Player(Tile):
                                       self.pos.y + self.hit_box[1] + (self.vel.y * self.speed),
                                       self.size.x, self.size.y)
             door = None
+            code_blocks = []
             for tile in tiles:
                 if tile.tile_type == "door":
                     door = tile
+                if tile.tile_type == "code block":
+                    code_blocks.append(tile)
+
+
+            for i in range(self.score):
+                code_blocks[i].frame = 1
 
             for tile in tiles:
                 if tile.tile_type == "signal" and future_rect.x < tile.rect.x + tile.rect.width - future_rect.width and future_rect.x + future_rect.width > tile.rect.x + future_rect.width and \
@@ -68,21 +76,27 @@ class Player(Tile):
                     if not self.transmit:
                         self.transmit = True
                         tile.signal_timer = 3000
+                        play_sound(4)
 
                     tile.signal_timer -= time
                     if tile.signal_timer < 0:
                         self.score += 1
                         tile.active = False
+                        tile.anim = False
+                        tile.frame = 0
+                        self.transmit = False
                         if self.score_limit == self.score:
                             print("won")
                             door.open = True
                             door.anim = True
                             door.collider = False
+                            play_sound(3)
                         print("yayyy", self.score_limit)
 
             self.update_anim(time)
             self.update_pos()
             return
+
 
         future_rect = pygame.Rect(self.pos.x + self.hit_box[0] + (self.vel.x * self.speed),
                                   self.pos.y + self.hit_box[1] + (self.vel.y * self.speed),
@@ -108,6 +122,7 @@ class Player(Tile):
                         if tile.pushable:
                             if not tile.moving:
                                 tile.move(tiles, 1 if self.rect.x < tile_hitbox.x else -1, 0)
+                                play_sound(1)
 
                     if future_rect_y.colliderect(tile_hitbox):
                         while future_rect_y.colliderect(tile_hitbox):
@@ -117,10 +132,12 @@ class Player(Tile):
                         if tile.pushable:
                             if not tile.moving:
                                 tile.move(tiles, 0, 1 if self.rect.y < tile_hitbox.y else -1)
+                                play_sound(1)
                 if tile.tile_type == "signal":
                     self.transmit = False
                     self.frame = 0
                 if tile.tile_type == "teleporter":
+
                     self.teleport = True
                     self.level = tile.value
 
@@ -137,6 +154,9 @@ class Player(Tile):
             self.pos.x += (self.vel.normalize() * self.speed).x
         if move[1]:
             self.pos.y += (self.vel.normalize() * self.speed).y
+
+        if not self.transmit:
+            pygame.mixer.Channel(4).stop()
 
         self.update_anim(time)
         self.update_pos()
