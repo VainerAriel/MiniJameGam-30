@@ -12,8 +12,9 @@ class Arrow(Tile):
         self.shoot_timer_limit = shoot_timer_limit
         self.bullet_sprites = bullet_sprites
 
-    def shoot(self, time, tiles, player):
-        self.shoot_timer += time
+    def shoot(self, time, tiles, player, stop_shooting=False):
+        if not stop_shooting:
+            self.shoot_timer += time
         if self.shoot_timer > self.shoot_timer_limit:
             self.shoot_timer = 0
             # 16*7
@@ -25,6 +26,7 @@ class Arrow(Tile):
                 x, y = self.pos.x + tile_size / 2 - w / 2, self.pos.y + tile_size / 2 - h / 2
 
             self.arrows.append(Bullet(x, y, w, h, (255, 0, 0), self.rotation, self.bullet_sprites))
+            play_sound(0)
 
             pygame.draw.rect(screen, (255, 255, 0), (x, y, w, h))
 

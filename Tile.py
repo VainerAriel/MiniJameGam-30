@@ -31,19 +31,43 @@ class Tile:
         self.anim = True
         self.loop = True
         self.value = value
+        self.pressed = False
+        if tile_type == "code block":
+            self.anim = False
         if tile_type == "door":
             self.anim = False
             self.loop = False
-            self.hit_box = (tile_size, 0)
 
         self.tile_type = tile_type
 
     def show(self, time=0):
-        if self.tile_type not in ["signal", "bullet", "door"]:
+        if self.tile_type not in ["signal", "bullet", "door", "code block", "pressure plate"]:
             pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
+        elif self.tile_type == "code block":
+            screen.blit(self.sprites[self.frame], (self.rect.x+tile_size/4, self.rect.y+tile_size/4))
         else:
             # pygame.draw.rect(screen, self.color, self.rect, 1 if self.fill else 0)
             screen.blit(self.sprites[self.frame], (self.rect.x, self.rect.y))
+
+    def update_button(self, tiles):
+        if self.tile_type == "pressure plate" and self.group=="leader":
+            group = [self]
+            for tile in tiles:
+                if tile.tile_type == "pressure plate" and self!=tile:
+                    group.append(tile)
+            # print(group)
+            count = 0
+            for member in group:
+                for tile in tiles:
+                    if tile.tile_type=="box" and member.grid_pos == tile.grid_pos and member!=tile:
+                        count += 1
+
+            if count==4:
+                for m in group:
+                    m.pressed = True
+            else:
+                for m in group:
+                    m.pressed = False
 
     def update_pos(self):
         self.rect = pygame.Rect(self.pos.x, self.pos.y, self.size.x, self.size.y)
