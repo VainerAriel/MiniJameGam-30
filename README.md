@@ -1,4 +1,4 @@
-# SEASIDE SIGNALS
+# 🎈 SEASIDE SIGNALS 🎈
 
 Forno's hot air balloon has crashed on a remote island. He must navigate through this island, filled to the brim with puzzles and challenges to find spare parts to repair his balloon.
 
